@@ -1,10 +1,10 @@
 package main
 
 import (
-	"image/color"
+	"math/rand"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -12,7 +12,14 @@ const (
 	screenHeight = 600
 )
 
-type Game struct{}
+func init() {
+	rand.Seed(time.Now().UnixMilli())
+}
+
+type Game struct {
+	world *World
+	cells []Cell
+}
 
 func (g *Game) Layout(width int, height int) (int, int) {
 	return width, height
@@ -23,14 +30,30 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	ebitenutil.DrawLine(screen, 0, 0, screenWidth/2, screenHeight/2, color.White)
+
+	// if g.pixels == nil {
+	// 	g.pixels = make([]byte, screenWidth*screenHeight*4)
+	// }
+
+	// g.world.Draw(g.pixels)
+	// screen.ReplacePixels(g.pixels)
+	g.cells[0].DrawCell(screen, 30, 30)
 }
 
 func main() {
+
+	cells := make([]Cell, screenWidth*screenHeight*4)
+	cells[0] = NewCell(4, 4)
+
+	game := &Game{
+		world: NewWorld(screenWidth, screenHeight, 10000),
+		cells: cells,
+	}
+
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Game of Life")
 
-	if err := ebiten.RunGame(&Game{}); err != nil {
+	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
 	}
 }
